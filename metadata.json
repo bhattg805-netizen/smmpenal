@@ -1,0 +1,6 @@
+{
+  "name": "yuthsmm",
+  "description": "A modern, premium, secure, and fully responsive SMM Panel with user and admin dashboards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

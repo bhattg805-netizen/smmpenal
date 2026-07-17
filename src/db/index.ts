@@ -13,7 +13,9 @@ export const createPool = () => {
     database: process.env.SQL_DB_NAME,
     connectionTimeoutMillis: 15000,
     max: 10,
-    idleTimeoutMillis: 15000, // close idle connections after 15 seconds to stay clean
+    idleTimeoutMillis: 30000, // keep idle connections around slightly longer to minimize reconnect overhead
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10000, // Send active TCP keepalive packets every 10 seconds to keep firewall mappings warm
   });
 };
 
@@ -48,7 +50,7 @@ pool.query = (async function (this: any, ...args: any[]) {
         err?.code === '08004';
 
       if (isConnectionError && attempts < maxAttempts) {
-        console.warn(`[DB Pool] Connection error on query attempt ${attempts}/${maxAttempts}: ${err.message}. Retrying query...`);
+        console.log(`[DB Pool] Re-initiating query operation (attempt ${attempts}/${maxAttempts})...`);
         await new Promise(resolve => setTimeout(resolve, 150 * attempts));
         continue;
       }
@@ -80,7 +82,7 @@ pool.connect = (async function (this: any, ...args: any[]) {
         err?.code === '08004';
 
       if (isConnectionError && attempts < maxAttempts) {
-        console.warn(`[DB Pool] Connection error on connect attempt ${attempts}/${maxAttempts}: ${err.message}. Retrying connect...`);
+        console.log(`[DB Pool] Re-connecting stream socket (attempt ${attempts}/${maxAttempts})...`);
         await new Promise(resolve => setTimeout(resolve, 150 * attempts));
         continue;
       }
